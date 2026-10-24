@@ -83,6 +83,6 @@
     </Grid>
    </Border>
   </Grid>
-  <Border Grid.Row="2" Background="#E9EEF5" Padding="25,7"><Grid><TextBlock x:Name="StatusText" Text="준비됨 · 기록은 변경할 때마다 자동 저장됩니다." FontSize="11" Foreground="#52647A"/><TextBlock Text="AI 대전 기록 1.2" FontSize="11" Foreground="#718198" HorizontalAlignment="Right"/></Grid></Border>
+  <Border Grid.Row="2" Background="#E9EEF5" Padding="25,7"><Grid><TextBlock x:Name="StatusText" Text="준비됨 · 기록은 변경할 때마다 자동 저장됩니다." FontSize="11" Foreground="#52647A"/><TextBlock Text="AI 대전 기록 1.3" FontSize="11" Foreground="#718198" HorizontalAlignment="Right"/></Grid></Border>
  </Grid>
 </Window>

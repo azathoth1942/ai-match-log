@@ -16,8 +16,8 @@ using Microsoft.Win32;
 [assembly: AssemblyTitle("AI 대전 기록")]
 [assembly: AssemblyProduct("AI 대전 기록")]
 [assembly: AssemblyDescription("수동 경기 기록, 메모장 가져오기와 TXT 내보내기, 날짜별 전체 보기")]
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]
+[assembly: AssemblyVersion("1.3.0.0")]
+[assembly: AssemblyFileVersion("1.3.0.0")]
 
 namespace AiMatchLog {
  public class Match {
@@ -113,7 +113,7 @@ namespace AiMatchLog {
    Find<Button>("TodayBtn").Click+=(s,e)=>{filterDate.SelectedDate=DateTime.Today;filterMode.SelectedIndex=2;Refresh();};
    Find<Button>("BackupBtn").Click+=(s,e)=>Backup();Find<Button>("RestoreBtn").Click+=(s,e)=>Restore();Find<Button>("HelpBtn").Click+=(s,e)=>Help();
    Find<Button>("TextImportBtn").Click+=(s,e)=>new TextImportWindow(window,store.Matches,additions=>{var next=new List<Match>(store.Matches);next.AddRange(additions);if(!Commit(next))return false;filterMode.SelectedIndex=0;search.Text="";Refresh();Status(additions.Count+"개 메모장 기록을 추가하고 자동 저장했습니다.");return true;}).Show();
-   Find<Button>("OverviewBtn").Click+=(s,e)=>{if(overview!=null && overview.Window.IsVisible){overview.Window.Activate();return;}overview=new AllRecordsWindow(window,()=>store.Matches);overview.Show();};
+   Find<Button>("OverviewBtn").Click+=(s,e)=>{if(overview!=null && overview.Window.IsVisible){overview.Window.Activate();return;}overview=new AllRecordsWindow(window,()=>store.Matches,Path.Combine(Path.GetDirectoryName(dataPath),"overview-width.txt"));overview.Show();};
    Button exportButton=Find<Button>("TextExportBtn");ContextMenu exportMenu=exportButton.ContextMenu;
    exportButton.Click+=(s,e)=>{((MenuItem)exportMenu.Items[0]).Header="전체 기록 내보내기 ("+store.Matches.Count+"판)";((MenuItem)exportMenu.Items[1]).Header="현재 조회·검색 결과 내보내기 ("+VisibleMatches().Count+"판)";exportMenu.PlacementTarget=exportButton;exportMenu.Placement=System.Windows.Controls.Primitives.PlacementMode.Bottom;exportMenu.IsOpen=true;};
    ((MenuItem)exportMenu.Items[0]).Click+=(s,e)=>ExportText(false);((MenuItem)exportMenu.Items[1]).Click+=(s,e)=>ExportText(true);
@@ -240,6 +240,15 @@ namespace AiMatchLog {
     var overviewUi=new AllRecordsWindow(null,()=>list);check(((System.Windows.Controls.DataGrid)overviewUi.Window.FindName("AllGrid")).Items.Count==4,"전체 목록 화면 로드와 바인딩");
     check(((System.Windows.Controls.ItemsControl)overviewUi.Window.FindName("DayCards")).Items.Count==3,"날짜별 카드 집계");
     RenderPreview(ui,1220,800,Path.Combine(Path.GetDirectoryName(Path.GetFullPath(report)),"main-preview.png"));RenderPreview(importUi.PreviewWindow,1240,800,Path.Combine(Path.GetDirectoryName(Path.GetFullPath(report)),"import-preview.png"));RenderPreview(overviewUi.Window,1500,900,Path.Combine(Path.GetDirectoryName(Path.GetFullPath(report)),"overview-preview.png"));
+    string statsBefore=((TextBlock)overviewUi.Window.FindName("OverviewStats")).Text;Slider widthSlider=(Slider)overviewUi.Window.FindName("CardWidthSlider");widthSlider.Value=200;
+    RenderPreview(overviewUi.Window,620,800,Path.Combine(Path.GetDirectoryName(Path.GetFullPath(report)),"overview-narrow.png"));
+    var compactCards=NamedVisuals((FrameworkElement)overviewUi.Window.Content,"DayCardBorder");check(overviewUi.Layout.CardWidth==200&&compactCards.Count==3&&compactCards.All(card=>Math.Abs(card.ActualWidth-200)<0.1),"200px 슬라이더 변경이 모든 날짜 표에 즉시 반영");
+    check(overviewUi.Window.MinWidth<=620&&NamedVisuals((FrameworkElement)overviewUi.Window.Content,"DurationCell").All(cell=>cell.ActualWidth>=50),"620px 창에서 경기 시간 열 너비 유지");
+    widthSlider.Value=520;RenderPreview(overviewUi.Window,1500,900,Path.Combine(Path.GetDirectoryName(Path.GetFullPath(report)),"overview-wide.png"));check(overviewUi.Layout.CardWidth==520&&NamedVisuals((FrameworkElement)overviewUi.Window.Content,"DayCardBorder").All(card=>Math.Abs(card.ActualWidth-520)<0.1),"520px까지 표 너비 확장");
+    ((Button)overviewUi.Window.FindName("DefaultWidthBtn")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));check(overviewUi.Layout.CardWidth==280&&((TextBlock)overviewUi.Window.FindName("OverviewStats")).Text==statsBefore&&((DataGrid)overviewUi.Window.FindName("AllGrid")).Items.Count==4,"기본 너비 복원과 경기·통계 보존");
+    string preferencePath=Path.Combine(testDir,"overview-width.txt");File.WriteAllText(preferencePath,"280");var preferenceUi=new AllRecordsWindow(null,()=>list,preferencePath);preferenceUi.Layout.CardWidth=230;preferenceUi.Window.Close();check(OverviewLayout.Load(preferencePath).CardWidth==230,"전체 기록 창을 닫으면 조절 너비 저장");
+    var restoredUi=new AllRecordsWindow(null,()=>list,preferencePath);RenderPreview(restoredUi.Window,620,800,Path.Combine(Path.GetDirectoryName(Path.GetFullPath(report)),"overview-restored.png"));check(restoredUi.Layout.CardWidth==230&&((Slider)restoredUi.Window.FindName("CardWidthSlider")).Value==230,"다음 전체 기록 창에서 저장 너비 복원");restoredUi.Window.Close();
+    File.WriteAllText(preferencePath,"NaN");check(OverviewLayout.Load(preferencePath).CardWidth==280,"잘못된 화면 설정에서 기본 너비로 복구");
     ((System.Windows.Controls.TextBox)overviewUi.Window.FindName("OverviewSearch")).Text="없는 상대";check(((System.Windows.Controls.DataGrid)overviewUi.Window.FindName("AllGrid")).Items.Count==0,"전체 기록 화면 검색 반영");
     string importPath=Path.Combine(testDir,"imported.json");var saveUi=new TextImportWindow(null,new List<Match>(),records=>{Core.AtomicWrite(importPath,new Store{Version=1,Matches=records});return true;});saveUi.PreparePreview("2026-10-24\n플루토 8:35 승\nAI 6:35 패\n잘못된 줄");((System.Windows.Controls.Button)saveUi.PreviewWindow.FindName("ImportBtn")).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));var savedImport=Core.Parse(File.ReadAllText(importPath));check(savedImport.Matches.Count==2&&savedImport.Matches.Sum(m=>m.Seconds)==910,"가져오기 저장 버튼과 파일 재읽기 통합 검사");
     string exportedText=TextExporter.Build(list,"전체 기록");var exportedRows=TextParser.Parse(exportedText,DateTime.Today,new List<Match>());check(exportedRows.Count==list.Count&&exportedRows.All(r=>r.Include)&&new HashSet<string>(list.Select(TextParser.Fingerprint)).SetEquals(exportedRows.Select(r=>TextParser.Fingerprint(r.ToMatch()))),"TXT 내보내기 후 날짜·상대·시간·승패·메모 재가져오기");
@@ -253,5 +262,6 @@ namespace AiMatchLog {
    }catch(Exception ex){passed.Add("FAIL "+ex.Message);File.WriteAllLines(report,passed.ToArray(),Encoding.UTF8);Environment.ExitCode=1;}
   }
   static void RenderPreview(Window window,int width,int height,string path){FrameworkElement root=(FrameworkElement)window.Content;root.Measure(new Size(width,height));root.Arrange(new Rect(0,0,width,height));root.UpdateLayout();var bitmap=new System.Windows.Media.Imaging.RenderTargetBitmap(width,height,96,96,System.Windows.Media.PixelFormats.Pbgra32);var background=new System.Windows.Media.DrawingVisual();using(var drawing=background.RenderOpen())drawing.DrawRectangle(window.Background,null,new Rect(0,0,width,height));bitmap.Render(background);bitmap.Render(root);var encoder=new System.Windows.Media.Imaging.PngBitmapEncoder();encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));using(var file=File.Create(path))encoder.Save(file);}
+  static List<FrameworkElement> NamedVisuals(System.Windows.DependencyObject root,string name){var found=new List<FrameworkElement>();var element=root as FrameworkElement;if(element!=null&&element.Name==name)found.Add(element);for(int i=0;i<System.Windows.Media.VisualTreeHelper.GetChildrenCount(root);i++)found.AddRange(NamedVisuals(System.Windows.Media.VisualTreeHelper.GetChild(root,i),name));return found;}
  }
 }

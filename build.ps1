@@ -25,5 +25,12 @@ if ($Release) {
     $taskDist = Join-Path $PSScriptRoot 'dist'
     New-Item -ItemType Directory -Force -Path $taskDist | Out-Null
     Copy-Item -LiteralPath $taskExe -Destination (Join-Path $taskDist 'AI대전기록.exe') -Force
+    Copy-Item -LiteralPath $taskExe -Destination (Join-Path $taskDist 'ai-match-log.exe') -Force
+    $taskVersion = (Get-Item -LiteralPath $taskExe).VersionInfo.FileVersion.Split('.')[0..2] -join '.'
+    $taskPackage = Join-Path $taskOutput 'package'
+    New-Item -ItemType Directory -Force -Path $taskPackage | Out-Null
+    Copy-Item -LiteralPath $taskExe -Destination (Join-Path $taskPackage 'ai-match-log.exe') -Force
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'docs\사용방법.txt') -Destination (Join-Path $taskPackage 'README.txt') -Force
+    Compress-Archive -LiteralPath (Join-Path $taskPackage 'ai-match-log.exe'),(Join-Path $taskPackage 'README.txt') -DestinationPath (Join-Path $taskDist "ai-match-log-v$taskVersion.zip") -Force
 }
 Write-Output $taskExe
