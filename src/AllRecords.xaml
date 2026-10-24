@@ -1,0 +1,28 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="전체 경기 기록" Width="1450" Height="900" MinWidth="1000" MinHeight="650" WindowState="Maximized" WindowStartupLocation="CenterOwner" Background="#F4F6FA" FontFamily="Malgun Gothic" FontSize="13" Foreground="#17253B">
+ <Window.Resources>
+  <Style TargetType="Button"><Setter Property="Padding" Value="15,8"/><Setter Property="Margin" Value="5,0"/><Setter Property="Background" Value="White"/><Setter Property="BorderBrush" Value="#CBD5E1"/><Setter Property="Cursor" Value="Hand"/></Style>
+  <Style TargetType="DataGrid"><Setter Property="AutoGenerateColumns" Value="False"/><Setter Property="IsReadOnly" Value="True"/><Setter Property="CanUserAddRows" Value="False"/><Setter Property="CanUserDeleteRows" Value="False"/><Setter Property="HeadersVisibility" Value="Column"/><Setter Property="GridLinesVisibility" Value="Horizontal"/><Setter Property="HorizontalGridLinesBrush" Value="#E5EBF3"/><Setter Property="Background" Value="White"/><Setter Property="AlternatingRowBackground" Value="#F8FAFD"/><Setter Property="RowHeight" Value="34"/><Setter Property="BorderThickness" Value="0"/></Style>
+  <Style TargetType="DataGridColumnHeader"><Setter Property="Background" Value="#E8EEF6"/><Setter Property="Padding" Value="10,9"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+  <Style TargetType="DataGridCell"><Setter Property="Padding" Value="10,7"/><Setter Property="BorderThickness" Value="0"/></Style>
+  <Style TargetType="TabItem"><Setter Property="Padding" Value="25,11"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+  <Style x:Key="ResultColor" TargetType="TextBlock"><Setter Property="FontWeight" Value="Bold"/><Setter Property="Foreground" Value="#64748B"/><Style.Triggers><DataTrigger Binding="{Binding Result}" Value="승"><Setter Property="Foreground" Value="#087E6A"/></DataTrigger><DataTrigger Binding="{Binding Result}" Value="패"><Setter Property="Foreground" Value="#CC4B59"/></DataTrigger></Style.Triggers></Style>
+ </Window.Resources>
+ <Grid>
+  <Grid.RowDefinitions><RowDefinition Height="87"/><RowDefinition Height="70"/><RowDefinition Height="*"/><RowDefinition Height="30"/></Grid.RowDefinitions>
+  <Border Background="#12243D" Padding="26,15"><Grid><StackPanel><TextBlock Text="전체 경기 기록" Foreground="White" FontSize="24" FontWeight="Bold"/><TextBlock Text="입력 화면을 접고, 모든 날짜의 경기 기록을 넓게 확인합니다." Foreground="#B4C7DE" Margin="0,5,0,0"/></StackPanel><Button x:Name="CloseOverview" Content="입력 화면으로" HorizontalAlignment="Right" VerticalAlignment="Center"/></Grid></Border>
+  <Grid Grid.Row="1" Margin="24,13"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="280"/><ColumnDefinition Width="100"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock x:Name="OverviewStats" FontSize="19" FontWeight="Bold"/><TextBlock x:Name="OverviewRange" Foreground="#64748B" Margin="0,5,0,0"/></StackPanel><TextBox Grid.Column="1" x:Name="OverviewSearch" Padding="9,8" VerticalContentAlignment="Center" ToolTip="상대 또는 메모 검색"/><Button Grid.Column="2" x:Name="ClearSearch" Content="검색 해제"/></Grid>
+  <TabControl Grid.Row="2" BorderThickness="0" Background="#F4F6FA" Margin="17,0,17,8">
+   <TabItem Header="날짜별 모아보기">
+    <Grid><ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><ItemsControl x:Name="DayCards"><ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate>
+     <Border Width="350" Background="White" BorderBrush="#D8E2EE" BorderThickness="1" CornerRadius="9" Margin="7,8" VerticalAlignment="Top">
+      <StackPanel><Border Background="#E7F3EF" Padding="13,11" CornerRadius="9,9,0,0"><StackPanel><TextBlock Text="{Binding Date}" FontSize="17" FontWeight="Bold"/><TextBlock Text="{Binding Label}" Foreground="#426957" Margin="0,5,0,0"/><TextBlock Text="{Binding Total}" Foreground="#426957" Margin="0,3,0,0"/></StackPanel></Border>
+       <DataGrid ItemsSource="{Binding Rows}" CanUserSortColumns="False" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled" RowHeight="31"><DataGrid.Columns><DataGridTextColumn Header="#" Binding="{Binding Round}" Width="43"/><DataGridTextColumn Header="상대" Binding="{Binding Opponent}" Width="150"/><DataGridTextColumn Header="시간" Binding="{Binding Duration}" Width="83"/><DataGridTextColumn Header="승패" Binding="{Binding Result}" Width="66" ElementStyle="{StaticResource ResultColor}"/></DataGrid.Columns></DataGrid>
+      </StackPanel>
+     </Border>
+    </DataTemplate></ItemsControl.ItemTemplate></ItemsControl></ScrollViewer><TextBlock x:Name="OverviewEmpty" Text="표시할 기록이 없습니다." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#7B8BA1" FontSize="16" IsHitTestVisible="False"/></Grid>
+   </TabItem>
+   <TabItem Header="전체 목록"><DataGrid x:Name="AllGrid"><DataGrid.Columns><DataGridTextColumn Header="날짜" Binding="{Binding Date}" Width="125"/><DataGridTextColumn Header="회차" Binding="{Binding Round}" Width="70"/><DataGridTextColumn Header="대전 상대" Binding="{Binding Opponent}" Width="230"/><DataGridTextColumn Header="시간" Binding="{Binding Duration}" Width="115"/><DataGridTextColumn Header="승패" Binding="{Binding Result}" Width="90" ElementStyle="{StaticResource ResultColor}"/><DataGridTextColumn Header="메모" Binding="{Binding Memo}" Width="*"/></DataGrid.Columns></DataGrid></TabItem>
+  </TabControl>
+  <TextBlock Grid.Row="3" x:Name="OverviewFooter" Text="최신 날짜부터 표시 · 날짜별 모아보기와 전체 목록을 전환할 수 있습니다." Foreground="#64748B" Margin="25,5,0,0" FontSize="12"/>
+ </Grid>
+</Window>

@@ -1,0 +1,13 @@
+bin/
+.test/
+.vs/
+obj/
+*.user
+*.suo
+*.tmp
+*.bak
+records.json
+records.json.*
+*.damaged-*
+test-data/
+ui-test-data/
