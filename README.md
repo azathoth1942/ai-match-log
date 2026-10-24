@@ -4,9 +4,13 @@ Windows에서 AI 대전 상대, 경기 시간, 승패를 직접 기록하는 프
 
 ## 다운로드 및 실행
 
-[AI대전기록.exe 다운로드](dist/AI대전기록.exe?raw=1)
+[Windows ZIP 다운로드](https://raw.githubusercontent.com/azathoth1942/ai-match-log/main/dist/ai-match-log-v1.2.0.zip)
 
-파일을 다운로드한 뒤 더블클릭하세요. Windows 10/11의 .NET Framework 4.x를 사용하며 별도 Python 설치는 필요하지 않습니다.
+ZIP을 다운로드해 압축을 풀고 `ai-match-log.exe`를 더블클릭하세요.
+
+[EXE만 직접 다운로드](https://raw.githubusercontent.com/azathoth1942/ai-match-log/main/dist/ai-match-log.exe)
+
+Windows 10/11의 .NET Framework 4.x를 사용하며 별도 Python 설치는 필요하지 않습니다.
 
 ## 주요 기능
 
